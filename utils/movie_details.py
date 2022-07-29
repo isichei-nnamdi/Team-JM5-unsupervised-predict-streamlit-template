@@ -10,7 +10,6 @@ import PIL.Image
 from urllib.request import urlopen
 
 
-
 def movie_poster_fetcher(df):
     ## Display Movie Poster
     url_data = requests.get(df).text
@@ -33,7 +32,7 @@ def movie_poster_fetcher(df):
     st.image(image, use_column_width=True)
     
     
-    
+
 def get_movie_info(df):
     url_data = requests.get(df).text
     s_data = BeautifulSoup(url_data, 'html.parser')
