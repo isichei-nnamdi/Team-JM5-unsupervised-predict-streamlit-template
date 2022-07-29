@@ -191,10 +191,10 @@ def main():
     # you are welcome to add more options to enrich your app.
     # page_options = ["Home", "Recommender System","Solution Overview"]
 
-    page_options = ["Home", "Recommender System", "EDA", "About"]
+    page_options = ["Recommender System", "Movies", "EDA", "About"]
     selection = option_menu( menu_title=None,
                             options=page_options,
-                            icons=["house", " ", "graph-up", "file-person"],
+                            icons=["house", "camera-reels", "graph-up", "file-person"],
                             orientation='horizontal',
                             styles={
                                         "container": {"padding": "0!important", "background-color": "#ED2E38"},
@@ -215,63 +215,104 @@ def main():
     # -------------------------------------------------------------------
     # page_selection = st.sidebar.selectbox("Choose Option", page_options)
     page_selection = selection
-    if page_selection == "Home":
+    if page_selection == "Recommender System":
         st.markdown("<h2 style='text-align: center; color: white;'>MovieHub, your movie dreams come alive!</h2>", unsafe_allow_html=True)
         st.markdown("<h3 style='text-align: center; color: #ED2E38;'>Most Recent and Rated Movies!</h3>", 
                     unsafe_allow_html=True)
-        
-        picture1, picture2, picture3 = st.columns(3)
-        with picture1:
-            picture1 = movie_poster_fetcher(sample_recent['url'].iloc[0]) 
-            with st.expander("About Movie"):
-                desc = get_movie_info(sample_recent['url'].iloc[0])
-                st.markdown(f"""
-                    <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                    <b style='color: #ED2E38'>Year: </b>{int(sample_recent['year'].iloc[0])} Movie<br><br>
-                    <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                    <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                    <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                    <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                    <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                    <a href={sample_recent['url'].iloc[0]}>Click to watch trailer</a>
-                    </p>""", unsafe_allow_html=True)
+        #----------------------------------------------------------------
+        sys = st.radio("Select an algorithm",
+            ('Content Based Filtering',
+                'Collaborative Based Filtering'))
 
-        with picture2:
-            picture2 = movie_poster_fetcher(sample_recent['url'].iloc[1])
-            with st.expander("About Movie"):
-                desc = get_movie_info(sample_recent['url'].iloc[1])
-                st.markdown(f"""
-                    <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                    <b style='color: #ED2E38'>Year: </b>{int(sample_recent['year'].iloc[1])} Movie<br><br>
-                    <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                    <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                    <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                    <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                    <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                    <a href={sample_recent['url'].iloc[1]}>Click to watch trailer</a>
-                    </p>""", unsafe_allow_html=True)
+            # selected_title = [title1, title2, title3, title4, title5]
+            
+            # User-based preferences
+        st.write('#### Click the button below for more recommendation')
+        movie_1 = st.selectbox('Fisrt Option',title_list[14930:15200]) # random.choice(selected_title)
+        movie_2 = st.selectbox('Second Option',title_list[25055:25255]) # random.choice(selected_title)
+        movie_3 = st.selectbox('Third Option',title_list[21100:21200]) # random.choice(selected_title)
+        fav_movies = [movie_1,movie_2,movie_3]
+
+        # Perform top-10 movie recommendation generation
+        if sys == 'Content Based Filtering':
+            if st.button("Recommend"):
+                try:
+                    with st.spinner('Crunching the numbers...'):
+                        top_recommendations = content_model(movie_list=fav_movies,
+                                                            top_n=10)
+                    st.title("We think you'll like:")
+                    for i,j in enumerate(top_recommendations):
+                        st.subheader(str(i+1)+'. '+j)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work.\
+                            We'll need to fix it!")
+
+
+        if sys == 'Collaborative Based Filtering':
+            if st.button("Recommend"):
+                try:
+                    with st.spinner('Crunching the numbers...'):
+                        top_recommendations = collab_model(movie_list=fav_movies,
+                                                        top_n=10)
+                    st.title("We think you'll like:")
+                    for i,j in enumerate(top_recommendations):
+                        st.subheader(str(i+1)+'. '+j)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work.\
+                            We'll need to fix it!")
+            #-----------------------------------------------------------------------------
+        # picture1, picture2, picture3 = st.columns(3)
+        # with picture1:
+        #     picture1 = movie_poster_fetcher(sample_recent['url'].iloc[0]) 
+        #     with st.expander("About Movie"):
+        #         desc = get_movie_info(sample_recent['url'].iloc[0])
+        #         st.markdown(f"""
+        #             <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #             <b style='color: #ED2E38'>Year: </b>{int(sample_recent['year'].iloc[0])} Movie<br><br>
+        #             <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #             <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #             <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #             <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+        #             <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+        #             <a href={sample_recent['url'].iloc[0]}>Click to watch trailer</a>
+        #             </p>""", unsafe_allow_html=True)
+
+        # with picture2:
+        #     picture2 = movie_poster_fetcher(sample_recent['url'].iloc[1])
+        #     with st.expander("About Movie"):
+        #         desc = get_movie_info(sample_recent['url'].iloc[1])
+        #         st.markdown(f"""
+        #             <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #             <b style='color: #ED2E38'>Year: </b>{int(sample_recent['year'].iloc[1])} Movie<br><br>
+        #             <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #             <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #             <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #             <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+        #             <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+        #             <a href={sample_recent['url'].iloc[1]}>Click to watch trailer</a>
+        #             </p>""", unsafe_allow_html=True)
 
         
-        with picture3:
-            picture3 =  movie_poster_fetcher(sample_recent['url'].iloc[2]) 
-            with st.expander("About Movie"):
-                desc = get_movie_info(sample_recent['url'].iloc[2])
-                st.markdown(f"""
-                    <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                    <b style='color: #ED2E38'>Year: </b>{int(sample_recent['year'].iloc[2])} Movie<br><br>
-                    <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                    <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                    <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                    <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                    <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                    <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
-                    </p>""", unsafe_allow_html=True)
+        # with picture3:
+        #     picture3 =  movie_poster_fetcher(sample_recent['url'].iloc[2]) 
+        #     with st.expander("About Movie"):
+        #         desc = get_movie_info(sample_recent['url'].iloc[2])
+        #         st.markdown(f"""
+        #             <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #             <b style='color: #ED2E38'>Year: </b>{int(sample_recent['year'].iloc[2])} Movie<br><br>
+        #             <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #             <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #             <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #             <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+        #             <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+        #             <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
+        #             </p>""", unsafe_allow_html=True)
 
             
     
     
     # if page_selection == "Recommender System":
-    if page_selection == "Recommender System":
+    if page_selection == "Movies":
         # Header contents
         # st.write('# Movie Recommender Engine')
         
@@ -279,298 +320,298 @@ def main():
         # st.write('### EXPLORE Data Science Academy Unsupervised Predict')
         # st.image('resources/imgs/Image_header.png',use_column_width=True)
         # Recommender System algorithm selection
-        with st.sidebar:
-            logo = Image.open("resources/imgs/my_logo.png")
-            st.image(logo, width =None, use_column_width='False')
+        # with st.sidebar:
+        #     logo = Image.open("resources/imgs/my_logo.png")
+        #     st.image(logo, width =None, use_column_width='False')
 
-            st.markdown(" ")
-            st.markdown(" ")
+        #     st.markdown(" ")
+        #     st.markdown(" ")
 
-            select_option = option_menu("Recommenders", ['User preference', 'Model-base'], 
-                    icons=['person-workspace', 'modem'], menu_icon="file-person", default_index=0)
+        #     select_option = option_menu("Recommenders", ['User preference', 'Model-base'], 
+        #             icons=['person-workspace', 'modem'], menu_icon="file-person", default_index=0)
 
-        if select_option == 'User preference':
-            st.markdown("<h2 style='text-align: center; color: white;'>What movie are you watching today?</h2>", unsafe_allow_html=True)
-            st.markdown("<h4 style='text-align: center; color: white;'>Choose one or more of the options below for the best movie </h4>", unsafe_allow_html=True)
-            
-            choice_collection = []
+        # if select_option == 'User preference':
+        st.markdown("<h2 style='text-align: center; color: white;'>What movie are you watching today?</h2>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: white;'>Choose one or more of the options below for the best movie </h4>", unsafe_allow_html=True)
+        
+        choice_collection = []
 
-            option1, option2, option3 = st.columns(3)
-            with option1:
-                movie_year = st.checkbox("Choose Movie Year")
-                if movie_year:
-                    selected_year = st.selectbox(
-                        "Select a year", 
-                        list(year_df))
-                    if selected_year:
-                        choice_one = choice_collection.append(selected_year)
-                    else:
-                        pass
+        option1, option2, option3 = st.columns(3)
+        with option1:
+            movie_year = st.checkbox("Choose Movie Year")
+            if movie_year:
+                selected_year = st.selectbox(
+                    "Select a year", 
+                    list(year_df))
+                if selected_year:
+                    choice_one = choice_collection.append(selected_year)
+                else:
+                    pass
 
-            with option2:
-                genre = st.checkbox("Choose Genre")
-                if genre:
-                    selected_genre = st.selectbox(
-                        "Select genre", 
-                        list(genre_df))
-                    if selected_genre:
-                        choice_two = choice_collection.append(selected_genre)
-                    else:
-                        pass
-                    
-            with option3:
-                director = st.checkbox("Choose a Director")
-                if director:
-                    selected_director = st.selectbox(
-                        "Select director", 
-                        director_df)
-                    if selected_director:
-                        choice_three = choice_collection.append(selected_director)
-                    else:
-                        pass
-            button1, button2, button3 = st.columns(3)
-
-            with button1:
-                pass
-
-            with button3:
-                pass
-            
-            with button2:
-                button_pressed = button2.button('Search for Movies')
-
-            
-            if button_pressed:
-                selected_movieid = np.where((selected_data['year'] == choice_collection[0]) | ((selected_data['genre'] == choice_collection[1])))
-                sliced_selected_movies = selected_data.iloc[selected_movieid]
-            
-                suggested_head = sliced_selected_movies.sort_values('year', ascending=False)#.head(50)
-                suggested = suggested_head.sample(5)
-   
+        with option2:
+            genre = st.checkbox("Choose Genre")
+            if genre:
+                selected_genre = st.selectbox(
+                    "Select genre", 
+                    list(genre_df))
+                if selected_genre:
+                    choice_two = choice_collection.append(selected_genre)
+                else:
+                    pass
                 
-                suggestion1, suggestion2, suggestion3, suggestion4, suggestion5 = st.columns(5)
-                
-                if "load_state" not in st.session_state:
-                    st.session_state.load_state = False                 
+        with option3:
+            director = st.checkbox("Choose a Director")
+            if director:
+                selected_director = st.selectbox(
+                    "Select director", 
+                    director_df)
+                if selected_director:
+                    choice_three = choice_collection.append(selected_director)
+                else:
+                    pass
+        button1, button2, button3 = st.columns(3)
 
-                with suggestion1:
-                    suggestion1 = movie_poster_fetcher(suggested['url'].iloc[0])
-                    if 'url1' not in st.session_state:
-                        st.session_state['url1'] = suggested['url'].iloc[0]
+        with button1:
+            pass
 
-                    with st.expander("About Movie"):
-                        desc = get_movie_info(suggested['url'].iloc[0])
-                        title1 = desc['Title']
-                        st.markdown(f"""
-                            <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                            <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[0])} Movie<br><br>
-                            <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                            <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                            <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                            <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                            <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                            <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
-                            </p>""", unsafe_allow_html=True)
+        with button3:
+            pass
+        
+        with button2:
+            button_pressed = button2.button('Search for Movies')
 
-                with suggestion2:
-                    suggestion2 = movie_poster_fetcher(suggested['url'].iloc[1])
-                    if 'url2' not in st.session_state:
-                        st.session_state['url2'] = suggested['url'].iloc[1]
+        
+        if button_pressed:
+            selected_movieid = np.where((selected_data['year'] == choice_collection[0]) | ((selected_data['genre'] == choice_collection[1])))
+            sliced_selected_movies = selected_data.iloc[selected_movieid]
+        
+            suggested_head = sliced_selected_movies.sort_values('year', ascending=False)#.head(50)
+            suggested = suggested_head.sample(5)
 
-                    with st.expander("About Movie"):
-                        desc = get_movie_info(suggested['url'].iloc[1])
-                        title2 = desc['Title']
-                        st.markdown(f"""
-                            <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                            <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[1])} Movie<br><br>
-                            <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                            <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                            <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                            <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                            <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                            <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
-                            </p>""", unsafe_allow_html=True)
+            
+            suggestion1, suggestion2, suggestion3, suggestion4, suggestion5 = st.columns(5)
+            
+            if "load_state" not in st.session_state:
+                st.session_state.load_state = False                 
 
-                with suggestion3:
-                    suggestion3 = movie_poster_fetcher(suggested['url'].iloc[2])
-                    if 'url3' not in st.session_state:
-                        st.session_state['url3'] = suggested['url'].iloc[2]
-
-                    with st.expander("About Movie"):
-                        desc = get_movie_info(suggested['url'].iloc[2])
-                        title3 = desc['Title']
-                        st.markdown(f"""
-                            <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                            <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[2])} Movie<br><br>
-                            <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                            <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                            <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                            <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                            <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                            <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
-                            </p>""", unsafe_allow_html=True)
-
-                with suggestion4:
-                    suggestion4 = movie_poster_fetcher(suggested['url'].iloc[3])
-                    if 'url4' not in st.session_state:
-                        st.session_state['url4'] = suggested['url'].iloc[3]
-
-                    with st.expander("About Movie"):
-                        desc = get_movie_info(suggested['url'].iloc[3])
-                        title4 = desc['Title']
-                        st.markdown(f"""
-                            <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                            <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[3])} Movie<br><br>
-                            <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                            <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                            <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                            <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                            <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                            <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
-                            </p>""", unsafe_allow_html=True)
-
-                with suggestion5:
-                    suggestion5 = movie_poster_fetcher(suggested['url'].iloc[4])
-                    if 'url5' not in st.session_state:
-                        st.session_state['url5'] = suggested['url'].iloc[4]
-
-                    with st.expander("About Movie"):
-                        desc = get_movie_info(suggested['url'].iloc[4])
-                        title5 = desc['Title']
-                        st.markdown(f"""
-                            <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
-                            <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[4])} Movie<br><br>
-                            <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
-                            <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
-                            <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                            <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
-                            <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
-                            <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
-                            </p>""", unsafe_allow_html=True)
-                
-                st.write("""
-                <h6 style='text-align: center; color: white'>
-                Congratulations! Here are some recommendations for you: settle in, unwind, and have fun.</h6>""", unsafe_allow_html=True)
-                st.balloons()
-                
-    
-                    
-        else:
-            st.write("""
-                <h6 style='text-align: center; color: white'>
-                Have you seen any of these movie before? Scroll down for further recommendation.</h6>""", unsafe_allow_html=True)
-            poster1, poster2, poster3, poster4, poster5 = st.columns(5)               
-
-            with poster1:
-                poster1 = movie_poster_fetcher(st.session_state['url1'])
+            with suggestion1:
+                suggestion1 = movie_poster_fetcher(suggested['url'].iloc[0])
+                if 'url1' not in st.session_state:
+                    st.session_state['url1'] = suggested['url'].iloc[0]
 
                 with st.expander("About Movie"):
-                    desc = get_movie_info(st.session_state['url1'])
+                    desc = get_movie_info(suggested['url'].iloc[0])
                     title1 = desc['Title']
                     st.markdown(f"""
-                        <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>                
+                        <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+                        <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[0])} Movie<br><br>
                         <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
                         <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
                         <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+                        <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+                        <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
                         </p>""", unsafe_allow_html=True)
 
-            with poster2:
-                poster2 = movie_poster_fetcher(st.session_state['url2'])
-                
+            with suggestion2:
+                suggestion2 = movie_poster_fetcher(suggested['url'].iloc[1])
+                if 'url2' not in st.session_state:
+                    st.session_state['url2'] = suggested['url'].iloc[1]
+
                 with st.expander("About Movie"):
-                    desc = get_movie_info(st.session_state['url2'])
+                    desc = get_movie_info(suggested['url'].iloc[1])
                     title2 = desc['Title']
                     st.markdown(f"""
                         <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+                        <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[1])} Movie<br><br>
                         <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
                         <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
                         <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+                        <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+                        <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
                         </p>""", unsafe_allow_html=True)
 
-            with poster3:
-                poster3 = movie_poster_fetcher(st.session_state['url3'])
+            with suggestion3:
+                suggestion3 = movie_poster_fetcher(suggested['url'].iloc[2])
+                if 'url3' not in st.session_state:
+                    st.session_state['url3'] = suggested['url'].iloc[2]
 
                 with st.expander("About Movie"):
-                    desc = get_movie_info(st.session_state['url3'])
+                    desc = get_movie_info(suggested['url'].iloc[2])
                     title3 = desc['Title']
                     st.markdown(f"""
                         <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+                        <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[2])} Movie<br><br>
                         <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
                         <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
                         <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+                        <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+                        <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
                         </p>""", unsafe_allow_html=True)
 
-            with poster4:
-                poster4 = movie_poster_fetcher(st.session_state['url4'])
+            with suggestion4:
+                suggestion4 = movie_poster_fetcher(suggested['url'].iloc[3])
+                if 'url4' not in st.session_state:
+                    st.session_state['url4'] = suggested['url'].iloc[3]
 
                 with st.expander("About Movie"):
-                    desc = get_movie_info(st.session_state['url4'])
+                    desc = get_movie_info(suggested['url'].iloc[3])
                     title4 = desc['Title']
                     st.markdown(f"""
                         <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+                        <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[3])} Movie<br><br>
                         <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
                         <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
                         <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+                        <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+                        <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
                         </p>""", unsafe_allow_html=True)
 
-            with poster5:
-                poster5 = movie_poster_fetcher(st.session_state['url5'])
+            with suggestion5:
+                suggestion5 = movie_poster_fetcher(suggested['url'].iloc[4])
+                if 'url5' not in st.session_state:
+                    st.session_state['url5'] = suggested['url'].iloc[4]
 
                 with st.expander("About Movie"):
-                    desc = get_movie_info(st.session_state['url5'])
+                    desc = get_movie_info(suggested['url'].iloc[4])
                     title5 = desc['Title']
                     st.markdown(f"""
                         <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+                        <b style='color: #ED2E38'>Year: </b>{int(suggested['year'].iloc[4])} Movie<br><br>
                         <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
                         <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
                         <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
-                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+                        <b style='color: #ED2E38'>Story: </b>{desc['Story']}<br><br>
+                        <b style='color: #ED2E38'>Watch Trailer: 👇 </b><br>
+                        <a href={sample_recent['url'].iloc[2]}>Click to watch trailer</a>
                         </p>""", unsafe_allow_html=True)
-
-            sys = st.radio("Select an algorithm",
-            ('Content Based Filtering',
-                'Collaborative Based Filtering'))
-
-            selected_title = [title1, title2, title3, title4, title5]
             
-            # User-based preferences
-            st.write('#### Click the button below for more recommendation')
-            movie_1 = random.choice(selected_title) # st.selectbox('Fisrt Option',title_list[14930:15200])
-            movie_2 = random.choice(selected_title) # st.selectbox('Second Option',title_list[25055:25255])
-            movie_3 = random.choice(selected_title) # st.selectbox('Third Option',title_list[21100:21200])
-            fav_movies = [movie_1,movie_2,movie_3]
+            st.write("""
+            <h6 style='text-align: center; color: white'>
+            Congratulations! Here are some recommendations for you: settle in, unwind, and have fun.</h6>""", unsafe_allow_html=True)
+            st.balloons()
+                
+    
+                    
+        # else:
+        #     st.write("""
+        #         <h6 style='text-align: center; color: white'>
+        #         Have you seen any of these movie before? Scroll down for further recommendation.</h6>""", unsafe_allow_html=True)
+        #     poster1, poster2, poster3, poster4, poster5 = st.columns(5)               
 
-            # Perform top-10 movie recommendation generation
-            if sys == 'Content Based Filtering':
-                if st.button("Recommend"):
-                    try:
-                        with st.spinner('Crunching the numbers...'):
-                            top_recommendations = content_model(movie_list=fav_movies,
-                                                                top_n=10)
-                        st.title("We think you'll like:")
-                        for i,j in enumerate(top_recommendations):
-                            st.subheader(str(i+1)+'. '+j)
-                    except:
-                        st.error("Oops! Looks like this algorithm does't work.\
-                                We'll need to fix it!")
+        #     with poster1:
+        #         poster1 = movie_poster_fetcher(st.session_state['url1'])
+
+        #         with st.expander("About Movie"):
+        #             desc = get_movie_info(st.session_state['url1'])
+        #             title1 = desc['Title']
+        #             st.markdown(f"""
+        #                 <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>                
+        #                 <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #                 <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #                 <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #                 <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+        #                 </p>""", unsafe_allow_html=True)
+
+        #     with poster2:
+        #         poster2 = movie_poster_fetcher(st.session_state['url2'])
+                
+        #         with st.expander("About Movie"):
+        #             desc = get_movie_info(st.session_state['url2'])
+        #             title2 = desc['Title']
+        #             st.markdown(f"""
+        #                 <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #                 <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #                 <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #                 <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #                 <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+        #                 </p>""", unsafe_allow_html=True)
+
+        #     with poster3:
+        #         poster3 = movie_poster_fetcher(st.session_state['url3'])
+
+        #         with st.expander("About Movie"):
+        #             desc = get_movie_info(st.session_state['url3'])
+        #             title3 = desc['Title']
+        #             st.markdown(f"""
+        #                 <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #                 <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #                 <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #                 <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #                 <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+        #                 </p>""", unsafe_allow_html=True)
+
+        #     with poster4:
+        #         poster4 = movie_poster_fetcher(st.session_state['url4'])
+
+        #         with st.expander("About Movie"):
+        #             desc = get_movie_info(st.session_state['url4'])
+        #             title4 = desc['Title']
+        #             st.markdown(f"""
+        #                 <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #                 <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #                 <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #                 <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #                 <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+        #                 </p>""", unsafe_allow_html=True)
+
+        #     with poster5:
+        #         poster5 = movie_poster_fetcher(st.session_state['url5'])
+
+        #         with st.expander("About Movie"):
+        #             desc = get_movie_info(st.session_state['url5'])
+        #             title5 = desc['Title']
+        #             st.markdown(f"""
+        #                 <p style='text-align: left; color: white; background-color: rgba(0,0,0,.5)'>
+        #                 <b style='color: #ED2E38'>Director: </b>{desc['Director']}<br><br>
+        #                 <b style='color: #ED2E38'>Title: </b>{desc['Title']}<br><br>
+        #                 <b style='color: #ED2E38'>Cast: </b>{desc['Cast']}<br><br>
+        #                 <b style='color: #ED2E38'>Story: </b>{desc['Story']}
+        #                 </p>""", unsafe_allow_html=True)
+
+            # sys = st.radio("Select an algorithm",
+            # ('Content Based Filtering',
+            #     'Collaborative Based Filtering'))
+
+            # # selected_title = [title1, title2, title3, title4, title5]
+            
+            # # User-based preferences
+            # st.write('#### Click the button below for more recommendation')
+            # movie_1 = st.selectbox('Fisrt Option',title_list[14930:15200]) # random.choice(selected_title)
+            # movie_2 = st.selectbox('Second Option',title_list[25055:25255]) # random.choice(selected_title)
+            # movie_3 = st.selectbox('Third Option',title_list[21100:21200]) # random.choice(selected_title)
+            # fav_movies = [movie_1,movie_2,movie_3]
+
+            # # Perform top-10 movie recommendation generation
+            # if sys == 'Content Based Filtering':
+            #     if st.button("Recommend"):
+            #         try:
+            #             with st.spinner('Crunching the numbers...'):
+            #                 top_recommendations = content_model(movie_list=fav_movies,
+            #                                                     top_n=10)
+            #             st.title("We think you'll like:")
+            #             for i,j in enumerate(top_recommendations):
+            #                 st.subheader(str(i+1)+'. '+j)
+            #         except:
+            #             st.error("Oops! Looks like this algorithm does't work.\
+            #                     We'll need to fix it!")
 
 
-            if sys == 'Collaborative Based Filtering':
-                if st.button("Recommend"):
-                    try:
-                        with st.spinner('Crunching the numbers...'):
-                            top_recommendations = collab_model(movie_list=fav_movies,
-                                                            top_n=10)
-                        st.title("We think you'll like:")
-                        for i,j in enumerate(top_recommendations):
-                            st.subheader(str(i+1)+'. '+j)
-                    except:
-                        st.error("Oops! Looks like this algorithm does't work.\
-                                We'll need to fix it!")
+            # if sys == 'Collaborative Based Filtering':
+            #     if st.button("Recommend"):
+            #         try:
+            #             with st.spinner('Crunching the numbers...'):
+            #                 top_recommendations = collab_model(movie_list=fav_movies,
+            #                                                 top_n=10)
+            #             st.title("We think you'll like:")
+            #             for i,j in enumerate(top_recommendations):
+            #                 st.subheader(str(i+1)+'. '+j)
+            #         except:
+            #             st.error("Oops! Looks like this algorithm does't work.\
+            #                     We'll need to fix it!")
             
             # for key in st.session_state.keys():
             #     del st.session_state[key]
