@@ -632,7 +632,7 @@ def main():
             st.markdown(" ")
             st.markdown(" ")
 
-            selected = option_menu("About", ["Recommender", 'About Team', 'Contact'], 
+            selected = option_menu("About", ["Recommender", 'About Team', 'Contact Us'], 
                     icons=['graph-up-arrow', 'people-fill', 'person-circle'], menu_icon="file-person", default_index=0)
             
 
@@ -662,12 +662,12 @@ def main():
         elif selected == "About Team":
             st.header("About Team")
             st.markdown(" ")
-            olamide_pic = Image.open("resources/imgs/olamide.jpg")
-            nnamdi_pic = Image.open("resources/imgs/Nnamdi_1.jpg")
-            kehinde_pic = Image.open("resources/imgs/kehinde.jpg")
-            josh_pics = Image.open("resources/imgs/josh.jpg")
-            john_pics = Image.open("resources/imgs/john.jpg")
-            duncan_pics = Image.open("resources/imgs/duncan.jpg")
+            olamide_pic = Image.open("resources/imgs/olamide.JPG")
+            nnamdi_pic = Image.open("resources/imgs/Nnamdi_1.JPG")
+            kehinde_pic = Image.open("resources/imgs/kehinde.JPG")
+            josh_pics = Image.open("resources/imgs/josh.JPG")
+            john_pics = Image.open("resources/imgs/john.JPG")
+            duncan_pics = Image.open("resources/imgs/duncan.JPG")
 
 
             st.subheader("Olamide - Founder/CEO")
@@ -768,7 +768,8 @@ def main():
                 </p>""", unsafe_allow_html=True)
 
         else:
-            st.header('Contact')
+            st.header('Contact Us')
+            st.write("Please, fill the form below 👇 and we will get back to you as soon as possible.")
             # cst.header(":mailbox: Get In Touch With Me!")
 
 
