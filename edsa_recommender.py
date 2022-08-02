@@ -45,7 +45,11 @@ import time
 from PIL import Image
 import pickle as pkle
 import os.path
-
+import streamlit.components.v1 as components
+from streamlit_pandas_profiling import st_profile_report
+import sweetviz as sv
+import codecs
+from pandas_profiling import ProfileReport 
 
 # Data handling dependencies
 import pandas as pd
@@ -63,6 +67,11 @@ import base64
 
 favicon = Image.open('resources/imgs/fav.png')
 st.set_page_config(page_title="MovieHub", page_icon=favicon)
+
+def st_display_sweetviz(report_html,width=1000,height=500):
+	report_file = codecs.open(report_html,'r')
+	page = report_file.read()
+	components.html(page,width=width,height=height,scrolling=True)
 
 
 #------------------------------------------------------------------------------------------------------------
@@ -217,8 +226,8 @@ def main():
     page_selection = selection
     if page_selection == "Recommender System":
         st.markdown("<h2 style='text-align: center; color: white;'>MovieHub, your movie dreams come alive!</h2>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align: center; color: #ED2E38;'>Most Recent and Rated Movies!</h3>", 
-                    unsafe_allow_html=True)
+        #st.markdown("<h3 style='text-align: center; color: #ED2E38;'>Most Recent and Rated Movies!</h3>", 
+        #            unsafe_allow_html=True)
         #----------------------------------------------------------------
         sys = st.radio("Select an algorithm",
             ('Content Based Filtering',
@@ -617,9 +626,50 @@ def main():
             #     del st.session_state[key]
             
     if page_selection == "EDA":
-        st.subheader("Exploration Data Analysis")
-        st.markdown('<iframe title="Recommender_Nnamdi" width="720" height="450" src="https://app.powerbi.com/reportEmbed?reportId=ad514490-c68d-4989-bb42-bed1952d08c5&autoAuth=true&ctid=2367c755-5748-4e40-9cb3-0a104c7d6d63&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLWNhbmFkYS1jZW50cmFsLWItcHJpbWFyeS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D" frameborder="0" allowFullScreen="true"></iframe>', unsafe_allow_html=True)
-        
+        with st.sidebar:
+            logo = Image.open("resources/imgs/my_logo.png")
+            st.image(logo, width =None, use_column_width='False')
+
+            st.markdown(" ")
+            st.markdown(" ")
+            st.write("Select the module to use for the EDA")
+
+            selected = option_menu("Visualizations", ["Pandas Profiling", 'Sweet Visualization'], 
+                    icons=['graph-up-arrow', 'list-task'], menu_icon="cast", default_index=0)
+            
+            
+
+        if selected == 'Pandas Profiling':
+            st.markdown("This provides an indepth view of the data.",unsafe_allow_html=True)
+            ds = st.radio("choose the data source", ("Movies", "Ratings"))
+            if ds == "Movies":
+                data_file = 'resources/data/movies.csv'
+            else:
+                data_file = 'resources/data/ratings.csv'
+            if data_file is not None:
+                df = pd.read_csv(data_file)
+                st.dataframe(df.head())
+                profile = ProfileReport(df)
+                st_profile_report(profile)
+            pass
+         
+        if selected == 'Sweet Visualization':
+            st.markdown("Visualize the data using the SweetViz module",unsafe_allow_html=True)
+            ds = st.radio("choose the data sorce", ("movies data", "ratings data"))
+            if ds == "movies data":
+                data_file = 'resources/data/movies.csv'
+            else:
+                data_file = 'resources/data/ratings.csv'
+            if data_file is not None:
+                df1 = pd.read_csv(data_file)
+                st.dataframe(df1.head())
+                if st.button("Generate Sweetviz Report"):
+                    report = sv.analyze(df1)
+                    report.show_html()
+                    st_display_sweetviz("SWEETVIZ_REPORT.html")
+        pass
+    
+ 
     # -------------------------------------------------------------------
 
     # ------------- SAFE FOR ALTERING/EXTENSION -------------------
@@ -769,7 +819,7 @@ def main():
 
         else:
             st.header('Contact Us')
-            st.write("Please, fill the form below 👇 and we will get back to you as soon as possible.")
+            st.write('Kindly fill the form below 👇 and we will get back to you ASAP:')
             # cst.header(":mailbox: Get In Touch With Me!")
 
 
