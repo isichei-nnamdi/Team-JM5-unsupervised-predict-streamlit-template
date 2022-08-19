@@ -660,6 +660,7 @@ def main():
                 data_file = 'resources/data/movies.csv'
             else:
                 data_file = 'resources/data/ratings.csv'
+                
             if data_file is not None:
                 df1 = pd.read_csv(data_file)
                 st.dataframe(df1.head())
